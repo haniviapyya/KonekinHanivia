@@ -10,6 +10,7 @@ interface ApiService {
     @GET("employees")
     fun getAllUsers(): Call<Users>
 
+    // Endpoint untuk mendapatkan detail karyawan berdasarkan ID
     @GET("employee/{id}")
-    fun getUserById(@Path("id") id: Int): Call<UserDetail>
+    fun getUserDetail(@Path("id") id: Int): Call<UserDetail>
 }

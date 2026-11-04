@@ -13,4 +13,5 @@ data class Data(
     val employeeAge: Int,
     @SerializedName("profile_image")
     val profileImage: String
+
 )
