@@ -1,10 +1,12 @@
 package com.example.konekinhanivia
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.konekinhanivia.databinding.ActivityMainBinding
+import com.example.konekinhanivia.model.Data
 import com.example.konekinhanivia.model.Users
 import com.example.konekinhanivia.network.ApiClient
 import retrofit2.Call
@@ -21,28 +23,39 @@ class MainActivity : AppCompatActivity() {
 
         val client = ApiClient.getInstance()
         val response = client.getAllUsers()
-        val userList = ArrayList<String>()
+
+        // Simpan list data objek lengkap (bukan cuma String nama)
+        val rawUserList = ArrayList<Data>()
+        val userNameList = ArrayList<String>()
 
         response.enqueue(object : Callback<Users> {
             override fun onResponse(call: Call<Users>, response: Response<Users>) {
-                // Jika koneksi berhasil, ambil nama pegawai satu per satu
                 if (response.isSuccessful && response.body() != null) {
                     for (i in response.body()!!.data) {
-                        userList.add(i.employeeName)
+                        rawUserList.add(i)
+                        userNameList.add(i.employeeName)
                     }
 
-                    // Tampilkan daftar nama ke ListView
                     val listAdapter = ArrayAdapter(
                         this@MainActivity,
                         android.R.layout.simple_list_item_1,
-                        userList
+                        userNameList
                     )
                     binding.lvNama.adapter = listAdapter
+
+                    // Tambahkan Event Klik pada ListView
+                    binding.lvNama.setOnItemClickListener { _, _, position, _ ->
+                        val selectedUser = rawUserList[position]
+
+                        // Berpindah ke UserDetailActivity sambil membawa ID
+                        val intent = Intent(this@MainActivity, UserDetailActivity::class.java)
+                        intent.putExtra("USER_ID", selectedUser.id)
+                        startActivity(intent)
+                    }
                 }
             }
 
             override fun onFailure(call: Call<Users>, t: Throwable) {
-                // Jika server bermasalah atau koneksi gagal
                 Toast.makeText(this@MainActivity, "Koneksi error", Toast.LENGTH_LONG).show()
             }
         })
